@@ -8,7 +8,14 @@
   </div>
   <div style="clear:both;"></div>
   <div>
-    <input  v-show=true v-focus id="enter" v-model="entered_letter" v-on:input="letter_is_enter()">
+    <input
+      class="enter"
+      id="enter"
+      ref="enter"
+      v-model="entered_letter"
+      v-on:input="letter_is_enter()"
+      v-on:keyup.esc="back()"
+    >
   </div>
   <p>{{letters}}</p>
 </div>
@@ -18,14 +25,21 @@
 <script>
 export default {
   name: 'OneWord',
-  
+  props:{
+    word: String,
+  },
+
   data(){
     return{
-        word: 'колбаса',
         actual_position: 0,
         entered_letter: '',
         theEnd: false,
     }
+  },
+
+  mounted: function (){
+    this.$refs['r'+String(this.actual_position)][0].classList.value='letter letter-actual';
+    this.$refs['enter'].focus();
   },
 
   computed: {
@@ -67,9 +81,14 @@ export default {
     },
 
     finish(){
-      setTimeout(()=> {this.theEnd=true;}, 2000);
-      setTimeout(()=> {alert("МОЛОДЕЦ!!!");}, 2000);
+      setTimeout(()=> {this.theEnd=true;}, 100);
+      setTimeout(()=> {alert("МОЛОДЕЦ!!!");}, 1000);
     },
+
+    back(){
+      setTimeout(()=> {alert("EXIT");}, 10);
+    },
+
   },
 }
 </script>
@@ -101,4 +120,12 @@ export default {
   color: transparent;
   -webkit-text-stroke: 0.5px green;
 }
+
+.enter{
+  background: transparent;
+  border: none;
+  outline:none;
+}
+
+
 </style>
