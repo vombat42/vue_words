@@ -1,6 +1,6 @@
 <template>
 <div class='oneword'>
-  <h1>{{word}}</h1>
+  <!-- <h1>{{word['name']}}</h1> -->
   <div v-for="(letter, index) in letters" :key='index'>
     <div :ref="letter['id']" class="letter letter-outliner">
       {{letter['name']}}
@@ -17,7 +17,7 @@
       v-on:keyup.esc="back()"
     >
   </div>
-  <p>{{letters}}</p>
+  <!-- <p>{{letters}}</p> -->
 </div>
 </template>
 
@@ -26,7 +26,8 @@
 export default {
   name: 'OneWord',
   props:{
-    word: String,
+    word: {},
+    letterSound: {},
   },
 
   data(){
@@ -40,13 +41,17 @@ export default {
   mounted: function (){
     this.$refs['r'+String(this.actual_position)][0].classList.value='letter letter-actual';
     this.$refs['enter'].focus();
+    setTimeout(()=> {
+      this.audioplay(this.word['voice']);
+    }, 1000);
+    
   },
 
   computed: {
     letters(){
       let id=0; //start id
       let arr=[];
-      for (const item of this.word.toUpperCase().split('')){
+      for (const item of this.word['name'].toUpperCase().split('')){
         arr.push({'name':item, 'id':'r'+String(id)});
         id++;
       }
@@ -54,7 +59,7 @@ export default {
     },
 
     number_letters(){
-      return this.word.toUpperCase().length;
+      return this.word['name'].toUpperCase().length;
     },
   },
 
@@ -66,13 +71,12 @@ export default {
 
     letter_is_enter: function() {
       if (this.letters[this.actual_position]['name']==this.entered_letter.toUpperCase()){
-        // this.audioplay(this.voices[this.entered_letter.toUpperCase()]);
+        this.audioplay(this.letterSound[this.entered_letter.toUpperCase()]);
         this.$refs['r'+String(this.actual_position)][0].classList.value='letter letter-color';
         if (this.actual_position < this.number_letters-1){
           this.$refs['r'+String(this.actual_position+1)][0].classList.value='letter letter-actual';
         }
         if (this.actual_position === this.number_letters-1){
-          // setTimeout(() => this.finish(), 2000);
           this.finish();
         }
         this.actual_position++;
@@ -82,11 +86,19 @@ export default {
 
     finish(){
       setTimeout(()=> {this.theEnd=true;}, 100);
-      setTimeout(()=> {alert("МОЛОДЕЦ!!!");}, 1000);
+      setTimeout(()=> {
+        // alert("МОЛОДЕЦ!!!");
+        this.nextWord();
+      }, 1000);
+
     },
 
     back(){
       setTimeout(()=> {alert("EXIT");}, 10);
+    },
+
+    nextWord(){
+      this.$emit('nextWord');
     },
 
   },
@@ -96,18 +108,19 @@ export default {
 
 <style>
   .letter{
+  font-family: "calibri";
   text-align:left;
   vertical-align: bottom;
-  font-size:150px;
+  font-size:180px;
   font-weight: 700;
   float: left;
-  padding: 0px 0px 0px 0px;
-  margin: 23px 20px 0px 0px;
+  padding: 0px 0px 0px 40px;
+  margin: 23px 0px 0px 0px;
 }
 
 .letter-outliner{
   color: transparent;
-  -webkit-text-stroke: 0.5px green;
+  -webkit-text-stroke: 1px green;
 }
 
 .letter-color{
@@ -116,9 +129,10 @@ export default {
 
 .letter-actual{
   margin: 0px 0px 0px 0px;
-  font-size:170px;
-  color: transparent;
-  -webkit-text-stroke: 0.5px green;
+  font-size:210px;
+/*  color: transparent;*/
+  color:  #ec7063;
+/*  -webkit-text-stroke: 2px red;*/
 }
 
 .enter{
